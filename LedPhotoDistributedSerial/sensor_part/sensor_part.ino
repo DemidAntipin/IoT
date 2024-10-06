@@ -1,7 +1,7 @@
 #define PHOTO_RESISTOR A3
 #define READ_RESISTOR 'p'
 
-char p_val;
+unsigned char p_val;
 
 void setup() {
   // put your setup code here, to run once:
