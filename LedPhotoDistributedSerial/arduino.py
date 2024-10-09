@@ -3,10 +3,10 @@ import time
 
 responses = {'d':7, 'u':6, 'p':1}
 
-light_limit = 300/4
+light_limit = 20
 
-port_led="COM4"
-port_photo="COM5"
+port_led="COM3"
+port_photo="COM4"
 
 connection_led = serial.Serial(port_led, timeout=1)
 connection_photo = serial.Serial(port_photo, timeout=1)
