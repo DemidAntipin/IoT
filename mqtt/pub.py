@@ -11,7 +11,7 @@ responses = {'p':1, 's':1}
 arr = np.full(100, np.nan)
 arrive_time = np.full(100, np.nan)
 
-port_photo="COM4"
+port_photo="COM5"
 
 connection_photo = serial.Serial(port_photo, timeout=1)
 
@@ -54,6 +54,11 @@ print(client.connect(broker))
 client.loop_start()
 print("Publishing")
 
+def confirm(client, userdata, message):
+    global pub_id_sended
+    pub_id_sended=True
+    print("Pub_id successfully recieved by subscriber")
+
 instant=time.time()
 average=time.time()
 stream=time.time()
@@ -62,6 +67,13 @@ min_max_time=time.time()-5
 stream_mode=False
 min_val=256
 max_val=0
+pub_id_sended=False
+client.on_message = confirm
+client.subscribe(f"lab/{pub_id}/confirm")
+while not pub_id_sended:
+    client.publish(f"lab/{pub_id}/get_pub_id", pub_id, qos=2)
+    time.sleep(1)
+client.unsubscribe(f"lab/{pub_id}/confirm")
 while True:
     arr, arrive_time=clean_messages(arr, arrive_time, 2)
     photo_val_resp = send_command('p', responses['p'], connection_photo)
@@ -76,24 +88,31 @@ while True:
     arrive_time[:99]=arrive_time[1:]
     arrive_time[-1]=time.time()
     if (time.time()-min_max_time>=5):
+        print(f"publish min: {min_val}")
         client.publish(f"lab/{pub_id}/photo/min", min_val)
+        print(f"publish max: {max_val}")
         client.publish(f"lab/{pub_id}/photo/max", max_val)
         min_max_time=time.time()
     if (time.time()-instant>=1):
+        print(f"publish instant: {arr[-1]}")
         client.publish(f"lab/{pub_id}/photo/instant", arr[-1])
         instant=time.time()
     if (time.time()-average>=1):
+        print(f"publish average: {np.nanmean(arr)}")
         client.publish(f"lab/{pub_id}/photo/average", np.nanmean(arr))
         average=time.time()
     if stream_mode and time.time()-stream>=0.1:
+        print(f"publish stream: {arr[-1]}")
         client.publish(f"lab/{pub_id}/photo/stream", arr[-1])
         stream=time.time()
     if time.time()-stream_start>10:
         mode=send_command('s', responses['s'], connection_photo)
         if mode=='n':
+            print(f"publish active_stream: on")
             client.publish(f"lab/{pub_id}/photo/active_stream", 'on')
             stream_mode=True
         else:
+            print(f"publish active_stream: off")
             client.publish(f"lab/{pub_id}/photo/active_stream", 'off')
             stream_mode=False
         stream_start=time.time()
