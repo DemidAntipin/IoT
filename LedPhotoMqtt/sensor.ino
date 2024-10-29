@@ -3,8 +3,6 @@
 #include "MQTT.h"
 
 #define PHOTO_RESISTOR A0
-#define READ_RESISTOR 'p'
-#define SWITCH_STREAM 's'
 
 int p_val;
 bool stream_mode = false;
@@ -15,7 +13,7 @@ long int average = 0;
 long int stream = 0;
 long int stream_start = 0;
 long int min_max = 0;
-int mi = 256;
+int mi = 1024;
 int ma = 0;
 
 String pub_id;
@@ -67,13 +65,13 @@ void setup() {
   topic_photo_average = "lab/" + pub_id + "/photo/average";
   topic_photo_stream = "lab/" + pub_id + "/photo/stream";
   topic_active_stream = "lab/" + pub_id + "/photo/active_stream";
-  mqtt_cli.setCallback(callback);
+  mqtt_cli.setCallback(get_confirm));
   mqtt_cli.subscribe(topic_confirm.c_str());
   while (!pub_id_sended) {
-    Serial.print("Trying to send pub_id to subscriber");
+    Serial.println("Trying to send pub_id to subscriber");
     mqtt_cli.publish(topic_get_pub_id.c_str(), pub_id.c_str());
-    delay(500);
     mqtt_cli.loop();
+    delay(500);
   }
 }
 
@@ -94,47 +92,50 @@ void loop() {
     p_val = analogRead(PHOTO_RESISTOR);
     memmove(arr, arr + 1, (99) * sizeof(int));
     arr[99] = p_val;
+    mi = min(mi, arr[99]);
+    ma = max(ma, arr[99]);
     memmove(arrive_time, arrive_time + 1, (99) * sizeof(long));
     arrive_time[99] = millis();
     long current = millis();
     
     if (current - min_max >= 5000) {
-        Serial.print("Publish min: " + String(mi));
+        Serial.println("Publish min: " + String(mi));
         mqtt_cli.publish(topic_photo_min.c_str(), String(mi).c_str());
-        Serial.print("Publish max: " + String(ma));
+        Serial.println("Publish max: " + String(ma));
         mqtt_cli.publish(topic_photo_max.c_str(), String(ma).c_str());
         min_max = millis();
     }
     
     if (current - instant >= 1000) {
-        Serial.print("Publish instant: " + String(arr[99]));
+        Serial.println("Publish instant: " + String(arr[99]));
         mqtt_cli.publish(topic_photo_instant.c_str(), String(arr[99]).c_str());
         instant = millis();
     }
     
     if (current - average >= 1000) {
         float avg = calculate_average();
-        Serial.print("Publish average: " + String(avg));
+        Serial.println("Publish average: " + String(avg));
         mqtt_cli.publish(topic_photo_average.c_str(), String(avg).c_str());
         average = millis();
     }
     
     if (stream_mode && current - stream >= 100) {
-        Serial.print("Publish stream: " + String(arr[99]));
+        Serial.println("Publish stream: " + String(arr[99]));
         mqtt_cli.publish(topic_photo_stream.c_str(), String(arr[99]).c_str());
         stream = millis();
     }
     
     if (current - stream_start > 10000) {
         if (stream_mode) {
-            Serial.print("Publish active_stream: off\n");
+            Serial.println("Publish active_stream: off\n");
             mqtt_cli.publish(topic_active_stream.c_str(), "off");
             stream_mode = false;
         } else {
-            Serial.print("Publish active_stream: on\n");
+            Serial.println("Publish active_stream: on\n");
             mqtt_cli.publish(topic_active_stream.c_str(), "on");
             stream_mode = true;
         }
         stream_start = millis();
     }
+    delay(500);
 }
