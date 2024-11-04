@@ -5,3 +5,5 @@
 - [LedPhotoDistributedSerial](LedPhotoDistributedSerial)
 - [Soldering_LedPhoto](https://drive.google.com/file/d/1XWhx2MIl356qht9EYr8jKvDQ2Qw2vfjP/view?usp=sharing)
 - [MQTT](mqtt)
+- [LedPhotoMqtt](LedPhotoMqtt)
+- [ESP_Lamp](ESP_lamp)

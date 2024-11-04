@@ -1,7 +1,7 @@
 import serial
 import time
 
-responses = {'d':7, 'u':6, 'p':1}
+responses = {'d':7, 'u':6, 'p':1, 'n':2, 'f':3}
 
 light_limit = 20
 
