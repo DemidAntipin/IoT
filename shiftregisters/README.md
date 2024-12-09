@@ -9,6 +9,6 @@
 - Увидеть работу устройства с циферблатом можно по [ссылке](https://drive.google.com/file/d/1l0ke3oEgSJshuSIaiZR-5_vBYH-vz-Oy/view?usp=sharing)
 - Увидеть работу устройства с матрицей можно по [ссылке](https://drive.google.com/file/d/1l02-8tL6PcBJrOh6tqt1yPrROL46Uszr/view?usp=sharing)
 
-# Схема
-
-- Аудиторное занятие - [схеме](work.png)
+# Аудиторное занятие
+- Код - [скетч](clock_face.ino)
+- ![Схема](work.png)
