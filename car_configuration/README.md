@@ -58,4 +58,4 @@
 
 # Демонстрация работы
 
-Увидеть работу устройства можно по [https://drive.google.com/file/d/1Y9E_Olo8eHI8USf2IvyDPAEw5403VMSq/view?usp=sharing]()
+Увидеть работу устройства можно по [ссылке](https://drive.google.com/file/d/1Y9E_Olo8eHI8USf2IvyDPAEw5403VMSq/view?usp=sharing)
